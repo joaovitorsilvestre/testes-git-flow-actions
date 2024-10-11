@@ -25,7 +25,6 @@ jobs:
               echo "FECHAR_PR='Titulo de PR inválido. Deve começar com [fix], [feat] ou [major]'" >> $GITHUB_OUTPUT
           else
               echo "Título do PR inválido"
-              exit 1
           fi
 
       - name: Validar nome da branch
@@ -37,7 +36,6 @@ jobs:
         # * Branches de versão canditadas a lançamento: v0.0.0
         # * Branches de correções de emergência: hotfix/xpto
         run: |
-          
           PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
           
           if [[ $PR_BRANCH == "develop" ]]; then
@@ -48,7 +46,6 @@ jobs:
           else
               echo "Nome da branch é inválido"
               echo "FECHAR_PR='Nome de branch inválido. \n\n Aceitos: develop, feat/xpto, bugfix/xpto, v0.0.0 e hotfix/xpto'" >> $GITHUB_OUTPUT
-              exit 1
           fi
 
       - name: Pegar arquivos modificados
@@ -70,7 +67,6 @@ jobs:
           
           if [[ $PR_BRANCH =~ ^hotfix/.*$ ]]; then
               echo "Branchs HOTFIX não podem alterar código nativo ou bibliotecas"
-              exit 1
           fi
 
       - name: Fechar PR se for preciso com a mensagem do motivo
@@ -87,7 +83,7 @@ jobs:
           else
               exit 0
           fi
-          
+  
           gh pr comment ${{ github.event.pull_request.number }} --body "$MENSAGEM"
           gh pr close ${{ github.event.pull_request.number }}
 
