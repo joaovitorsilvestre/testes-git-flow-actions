@@ -78,11 +78,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
         run: |
-          if [[ "${{ steps.pr_valido.outputs.FECHAR_PR }} != "" ]]; then
+          if [[ "${{ steps.pr_valido.outputs.FECHAR_PR }}" != "" ]]; then
               MENSAGEM="${{ steps.pr_valido.outputs.FECHAR_PR }}"
-          elif [[ "${{ steps.branch_valida.outputs.FECHAR_PR }} != "" ]]; then
+          elif [[ "${{ steps.branch_valida.outputs.FECHAR_PR }}" != "" ]]; then
               MENSAGEM="${{ steps.branch_valida.outputs.FECHAR_PR }}"
-          elif [[ "${{ steps.branch_hotfix_valida.outputs.FECHAR_PR }} != "" ]]; then
+          elif [[ "${{ steps.branch_hotfix_valida.outputs.FECHAR_PR }}" != "" ]]; then
               MENSAGEM="${{ steps.branch_hotfix_valida.outputs.FECHAR_PR }}"
           else
               exit 0
