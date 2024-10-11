@@ -13,6 +13,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Validar titulo do PR
+        id: pr_valido
         # Valida que o PR tem o titulo no formato certo. Regras:
         # Ele deve começar com o nível de alteração: [fix], [feat] ou [major]
 
@@ -21,14 +22,15 @@ jobs:
           
           if [[ $PR_TITLE =~ ^\[(fix|feat|major)\].*$ ]]; then
               echo "Título do PR válido"
+              echo "FECHAR_PR='Titulo de PR inválido. Deve começar com [fix], [feat] ou [major]'" >> $GITHUB_OUTPUT
           else
               echo "Título do PR inválido"
               exit 1
           fi
 
       - name: Validar nome da branch
+        id: branch_valida
         # Valida que a BRANCH tem o nome válido. Regras:
-        # * Branch de produção: master
         # * Branch do “próximo lançamento”: develop
         # * Branches de desenvolvimento de funcionalidades: feat/xpto
         # * Branches de desenvolvimento de correções de bug: bugfix/xpto
@@ -38,12 +40,14 @@ jobs:
           
           PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
           
-          if [[ $PR_BRANCH == "master" || $PR_BRANCH == "develop" ]]; then
-              echo "Nome do PR válido"
+          if [[ $PR_BRANCH == "develop" ]]; then
+              echo "Nome da branch é válido"
+              echo "FECHAR_PR='Titulo de PR inválido'" >> $GITHUB_OUTPUT
           elif [[ $PR_BRANCH =~ ^feat/.*$ || $PR_BRANCH =~ ^bugfix/.*$ || $PR_BRANCH =~ ^hotfix/.*$ || $PR_BRANCH =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "Nome do PR válido"
+              echo "Nome da branch é válido"
           else
-              echo "Nome do PR inválido"
+              echo "Nome da branch é inválido"
+              echo "FECHAR_PR='Nome de branch inválido. \n\n Aceitos: develop, feat/xpto, bugfix/xpto, v0.0.0 e hotfix/xpto'" >> $GITHUB_OUTPUT
               exit 1
           fi
 
@@ -59,13 +63,34 @@ jobs:
               - 'yarn.lock'
 
       - name: Validar se não alterou código nativou ou libs se for HOTFIX
+        id: branch_hotfix_valida
         if: steps.changed-files-yaml.outputs.arquivos_nativos_ou_libs == 'true'
         run: |
           PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
           
           if [[ $PR_BRANCH =~ ^hotfix/.*$ ]]; then
               echo "Branchs HOTFIX não podem alterar código nativo ou bibliotecas"
+              exit 1
           fi
+
+      - name: Fechar PR se for preciso com a mensagem do motivo
+        if: |
+          (
+            steps.pr_valido.outputs.FECHAR_PR != '' ||
+            steps.branch_valida.outputs.FECHAR_PR != '' ||
+            steps.branch_hotfix_valida.outputs.FECHAR_PR != ''
+          )
+        run: |
+          if [[ steps.pr_valido.outputs.FECHAR_PR != '' ]]; then
+              MENSAGEM="${{ steps.pr_valido.outputs.FECHAR_PR }}"
+          elif [[ steps.branch_valida.outputs.FECHAR_PR != '' ]]; then
+              MENSAGEM="${{ steps.branch_valida.outputs.FECHAR_PR }}"
+          elif [[ steps.branch_hotfix_valida.outputs.FECHAR_PR != '' ]]; then
+              MENSAGEM="${{ steps.branch_hotfix_valida.outputs.FECHAR_PR }}"
+          fi
+          
+          gh pr comment ${{ github.event.pull_request.number }} --body "$MENSAGEM"
+          gh pr close ${{ github.event.pull_request.number }}
 
       - name: Executar testes
         uses: ./.github/rodar-testes
