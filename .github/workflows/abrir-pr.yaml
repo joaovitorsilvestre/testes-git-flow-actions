@@ -22,9 +22,9 @@ jobs:
           
           if [[ $PR_TITLE =~ ^\[(fix|feat|major)\].*$ ]]; then
               echo "Título do PR válido"
-              echo "FECHAR_PR='Titulo de PR inválido! Deveria começar com [fix], [feat] ou [major]'" >> $GITHUB_OUTPUT
           else
               echo "Título do PR inválido"
+              echo "FECHAR_PR='Titulo de PR inválido! Deveria começar com [fix], [feat] ou [major]'" >> $GITHUB_OUTPUT
           fi
 
       - name: Validar nome da branch
