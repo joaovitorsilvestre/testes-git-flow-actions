@@ -1,0 +1,105 @@
+# dev docker local files
+/secrets/docker_secrets_config.json
+.env.docker
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+result.xlsx
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# mac files
+.DS_Store
+
+# celery beat schedule file
+celerybeat-schedule
+
+# Ide
+*.sublime-workspace
+*.sublime-project
+.idea
+.vscode/
+.#*
+condominio.iml
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+#.ebignore
+#.elasticbeanstalk/
+#.elasticbeanstalk
+#.elasticbeanstalk/*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Others
+screen_shots/
+.pro_env
+.prod_env
+.test_env*
+gen_wkj.py
+mock_wkj.py
+alertas_warning.py
+altera_warnings.py
+*.~lock.*
+condominio/main/print_funcionarios.py
+recent_users.csv
+tests/.test_history
+monkeytype.sqlite3
+
+.gui.env
+condominio.egg-info/
+.ionide/symbolCache.db
+secrets/secrets_config_banco_externo.json
+src
+
+Pipfile
+Pipfile.lock
+requirements.txt
+requirements_dev.txt
+
+.tool-versions
+/infra/devtools/conectar_todos_bancos/cloud_sql_proxy
+/infra/devtools/conectar_todos_bancos/dump.rdb
+/secrets/teste_carg.env
+
+# traduções
+*.mo
+pyrightconfig.json

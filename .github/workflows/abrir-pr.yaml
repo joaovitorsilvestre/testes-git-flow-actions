@@ -1,0 +1,68 @@
+name: Validar novo PR
+
+on:
+  pull_request:
+
+jobs:
+  validar-pr:
+    runs-on:
+      - ubuntu-latest
+
+    steps:
+      - name: Validar titulo do PR
+        # Valida que o PR tem o titulo no formato certo. Regras:
+        # Ele deve começar com o nível de alteração: [fix], [feat] ou [major]
+
+        run: |
+          PR_TITLE=$(echo ${{ github.event.pull_request.title }} | tr '[:upper:]' '[:lower:]')
+          
+          if [[ $PR_TITLE =~ ^\[(fix|feat|major)\].*$ ]]; then
+              echo "Título do PR válido"
+          else
+              echo "Título do PR inválido"
+              exit 1
+          fi
+
+      - name: Validar nome da branch
+        # Valida que a BRANCH tem o nome válido. Regras:
+        # * Branch de produção: master
+        # * Branch do “próximo lançamento”: develop
+        # * Branches de desenvolvimento de funcionalidades: feat/xpto
+        # * Branches de desenvolvimento de correções de bug: bugfix/xpto
+        # * Branches de versão canditadas a lançamento: v0.0.0
+        # * Branches de correções de emergência: hotfix/xpto
+        run: |
+          
+          PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
+          
+          if [[ $PR_BRANCH == "master" || $PR_BRANCH == "develop" ]]; then
+              echo "Nome do PR válido"
+          elif [[ $PR_BRANCH =~ ^feat/.*$ || $PR_BRANCH =~ ^bugfix/.*$ || $PR_BRANCH =~ ^hotfix/.*$ || $PR_BRANCH =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Nome do PR válido"
+          else
+              echo "Nome do PR inválido"
+              exit 1
+          fi
+
+      - name: Pegar arquivos modificados
+        id: changed-files-yaml
+        uses: tj-actions/changed-files@v43
+        with:
+          files_yaml: |
+            arquivos_nativos_ou_libs:
+              - 'android/**'
+              - 'ios/**'
+              - 'package.json'
+              - 'yarn.lock'
+
+      - name: Validar se não alterou código nativou ou libs se for HOTFIX
+        if: steps.changed-files-yaml.outputs.arquivos_nativos_ou_libs == 'true'
+        run: |
+          PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
+          
+          if [[ $PR_BRANCH =~ ^hotfix/.*$ ]]; then
+              echo "Branchs HOTFIX não podem alterar código nativo ou bibliotecas"
+          fi
+
+      - name: Executar testes
+        uses: ./.github/rodar-testes

@@ -1,0 +1,13 @@
+name: Rodar testes
+
+on:
+  pull_request:
+
+jobs:
+  validar-pr:
+    runs-on:
+      - ubuntu-latest
+
+    steps:
+      - name: "Rodando testes"
+        runs: echo "Rodando testes"
