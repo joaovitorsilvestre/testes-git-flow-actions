@@ -9,6 +9,9 @@ jobs:
       - ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Validar titulo do PR
         # Valida que o PR tem o titulo no formato certo. Regras:
         # Ele deve começar com o nível de alteração: [fix], [feat] ou [major]
