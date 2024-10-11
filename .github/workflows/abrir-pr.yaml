@@ -75,6 +75,8 @@ jobs:
 
       - name: Fechar PR se for preciso com a mensagem do motivo
         if: always()
+        env:
+          GH_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
         run: |
           if [[ steps.pr_valido.outputs.FECHAR_PR != '' ]]; then
               MENSAGEM="${{ steps.pr_valido.outputs.FECHAR_PR }}"
