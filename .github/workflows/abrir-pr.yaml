@@ -75,7 +75,7 @@ jobs:
 
       - name: Fechar PR se for preciso com a mensagem do motivo
         if: |
-          (
+          always() && (
             steps.pr_valido.outputs.FECHAR_PR != '' ||
             steps.branch_valida.outputs.FECHAR_PR != '' ||
             steps.branch_hotfix_valida.outputs.FECHAR_PR != ''
