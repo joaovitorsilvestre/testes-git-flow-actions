@@ -100,12 +100,3 @@ jobs:
           body: ${{ steps.changelog.outputs.changes }}
           token: ${{ secrets.DEV_USER_TOKEN }}
           reverseOrder: true
-
-      - name: Commit CHANGELOG.md
-        if: github.event.pull_request.merged == true
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          branch: master
-          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
-          file_pattern: CHANGELOG.md
-
