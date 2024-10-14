@@ -6,4 +6,4 @@ runs:
   steps:
     - name: "Rodando testes"
       shell: bash
-      runs: echo "Rodando testes"
+      run: echo "Rodando testes"
