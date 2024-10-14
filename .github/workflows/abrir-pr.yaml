@@ -74,6 +74,8 @@ jobs:
           fi
 
       - name: Adiciona label no PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
         run: |
           PR_TITLE=$(echo ${{ github.event.pull_request.title }} | tr '[:upper:]' '[:lower:]')
           
