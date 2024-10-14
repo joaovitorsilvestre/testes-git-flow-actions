@@ -88,6 +88,8 @@ jobs:
 
       - name: Criar PR
         run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           BRANCH_DO_PR="${{ github.event.inputs.branch }}"
           NOVA_VERSAO="${{ steps.versao.outputs.NOVA_VERSAO }}"
           
@@ -96,8 +98,6 @@ jobs:
             git checkout -b $BRANCH_DO_PR
             git push origin $BRANCH_DO_PR
           fi
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
           
           gh pr create -B ${{ $BRANCH_DO_PR }} -H master \
             --title "[release] Candidato a release" \
