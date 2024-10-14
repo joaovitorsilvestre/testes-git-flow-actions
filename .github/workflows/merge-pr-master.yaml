@@ -37,7 +37,7 @@ jobs:
           # Se o nome da branch começar com hotfix/ o tipo é de build
           if [[ "$pr_branch" =~ ^hotfix\/ ]]; then
             TIPO_ATUALIZACAO="rollout"
-          elif [[ "$pr_branch" =~ ^release\/v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
+          elif [[ "$pr_branch" =~ ^release\/v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             TIPO_ATUALIZACAO="loja"
           else
             echo "Falha nos bloquios de PR, pois para mergear na master só poderia se a branch começar com 'hotfix/' ou se de release no formato 'release/v0.0.0.0'"
