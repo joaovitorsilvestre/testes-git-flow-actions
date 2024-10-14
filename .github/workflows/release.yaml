@@ -32,16 +32,16 @@ jobs:
           echo "Branch do PR: $pr_branch"
           
           # Se o nome da branch começar com hotfix/ o tipo é de build
-          if [[ "${{ github.head_ref }}" =~ ^hotfix/ ]]; then
+          if [[ "$pr_branch" =~ ^hotfix/ ]]; then
             bump_type="build"
           elif [[ "$pr_title" =~ ^\[major\] ]]; then
             bump_type="major"
           elif [[ "$pr_title" =~ ^\[minor\] ]]; then
             bump_type="minor"
-          elif [[ "$pr_title" =~ ^\[patch\] ]]; then
+          elif [[ "$pr_title" =~ ^\[fix\] ]]; then
             bump_type="patch"
           else
-            echo "Caminho inválido, existe algum erro de lógica nas nossas actions."
+            echo "Caminho inválido, existe algum erro de lógica nas nossas actions de validar nome de pr e branch."
             exit 1
           fi
           
