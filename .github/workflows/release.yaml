@@ -24,8 +24,9 @@ jobs:
         id: ultima_tag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
 
-      - name: Determine bump type from PR title
-        id: determine_bump
+      - name: Bump version
+        id: versao
+        if: github.event.pull_request.merged == true
         run: |
           pr_title="${{ github.event.pull_request.title }}"
           pr_branch="${{ github.head_ref }}"
@@ -35,52 +36,14 @@ jobs:
           
           # Se o nome da branch começar com hotfix/ o tipo é de build
           if [[ "$pr_branch" =~ ^hotfix/ ]]; then
-            bump_type="build"
-          elif [[ "$pr_title" =~ ^\[major\] ]]; then
-            bump_type="major"
-          elif [[ "$pr_title" =~ ^\[feat\] ]]; then
-            bump_type="feat"
-          elif [[ "$pr_title" =~ ^\[fix\] ]]; then
-            bump_type="fix"
+            build=$((build + 1))
+            new_version="v$major.$feat.$fix.$build"
+          elif ! [[ "$pr_branch" =~ ^v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
+            new_version="$pr_branch.0"
           else
-            echo "Caminho inválido, existe algum erro de lógica nas nossas actions de validar nome de pr e branch."
+            echo "Falha nos bloquios de PR, pois para mergear na master só poderia se a branch começar com `hotfix/` ou se de release no formato `v0.0.0`"
             exit 1
           fi
-          
-          echo "bump_type=$bump_type" >> $GITHUB_OUTPUT
-
-      - name: Bump version
-        if: github.event.pull_request.merged == true
-        run: |
-          IFS='.' read -r major feat fix build <<< "${{ steps.ultima_tag.outputs.tag }}"
-          bump_type="${{ steps.determine_bump.outputs.bump_type }}"
-          
-          case "$bump_type" in
-            major)
-              major=$((major + 1))
-              feat=0
-              fix=0
-              build=0
-              ;;
-            feat)
-              feat=$((feat + 1))
-              fix=0
-              build=0
-              ;;
-            fix)
-              fix=$((fix + 1))
-              build=0
-              ;;
-            build)
-              build=$((build + 1))
-              ;;
-            *)
-              echo "Invalid bump type. Use: major, feat, fix, or build."
-              exit 1
-              ;;
-          esac
-          
-          new_version="v$major.$feat.$fix.$build"
           
           # valida que a versão é válida
           if ! [[ "$new_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -88,6 +51,14 @@ jobs:
               exit 1
           fi
           
-          echo "nova versaoooo"
-          echo "$new_version"
+          echo "Nova versao: $new_version"
+          echo "NOVA_VERSAO='$new_version'" >> $GITHUB_OUTPUT
 
+      - name: Criar PR para atualizar a branch develop
+        if: github.event.pull_request.merged == true
+        run: |
+          gh pr create -B develop -H master \
+            --title "[release] Atualizar branch develop pós release ${ steps.versao.outputs.NOVA_VERSAO }" \
+            --body 'Criada no github actions'
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
