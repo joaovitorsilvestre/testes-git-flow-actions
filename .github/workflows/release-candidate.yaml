@@ -90,6 +90,8 @@ jobs:
           echo "TIPO_ATUALIZACAO=$TIPO_DE_BUMP" >> $GITHUB_OUTPUT
 
       - name: Criar PR
+        env:
+          GH_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
