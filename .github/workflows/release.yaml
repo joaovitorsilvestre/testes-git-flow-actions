@@ -2,6 +2,8 @@ name: "Criar release"
 
 on:
   pull_request:
+    types:
+      - closed
 
 jobs:
   validar-pr:
@@ -24,6 +26,10 @@ jobs:
         id: determine_bump
         run: |
           pr_title="${{ github.event.pull_request.title }}"
+          pr_branch="${{ github.head_ref }}"
+          
+          echo "Titulo do PR: $pr_title"
+          echo "Branch do PR: $pr_branch"
           
           # Se o nome da branch começar com hotfix/ o tipo é de build
           if [[ "${{ github.head_ref }}" =~ ^hotfix/ ]]; then
