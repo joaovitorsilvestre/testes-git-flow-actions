@@ -46,11 +46,11 @@ jobs:
           
           # validações
           if [[ $BRANCH_ORIGEM ~= "hotfix/" ]]; then
-            if [[ $TIPO_DE_BUMP != "build" ]]; then
+            if [[ "$TIPO_DE_BUMP" != "build" ]]; then
               echo "Para hotfix, o tipo de bump deve ser build"
               exit 1
             fi
-          elif [[ $BRANCH_ORIGEM != "develop" ]]; then
+          elif [[ "$BRANCH_ORIGEM" != "develop" ]]; then
             echo "Só é permitido gerar release candidate a partir da branch develop ou de uma de hotfix"
             exit 1
           fi
