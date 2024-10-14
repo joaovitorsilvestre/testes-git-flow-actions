@@ -38,9 +38,11 @@ jobs:
           if [[ "$pr_branch" =~ ^hotfix/ ]]; then
             IFS='.' read -r major feat fix build <<< "${{ steps.ultima_tag.outputs.tag }}"
             build=$((build + 1))
-            new_version="v$major.$feat.$fix.$build"
+            new_version="$major.$feat.$fix.$build"
+            TIPO_ATUALIZACAO="rollout"
           elif ! [[ "$pr_branch" =~ ^v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
             new_version="$pr_branch.0"
+            TIPO_ATUALIZACAO="loja"
           else
             echo "Falha nos bloquios de PR, pois para mergear na master só poderia se a branch começar com `hotfix/` ou se de release no formato `v0.0.0`"
             exit 1
@@ -54,6 +56,7 @@ jobs:
           
           echo "Nova versao: $new_version"
           echo "NOVA_VERSAO='$new_version'" >> $GITHUB_OUTPUT
+          echo "TIPO_ATUALIZACAO='$TIPO_ATUALIZACAO'" >> $GITHUB_OUTPUT
 
       - name: Criar PR para atualizar a branch develop
         if: github.event.pull_request.merged == true
