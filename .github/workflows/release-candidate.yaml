@@ -39,6 +39,7 @@ jobs:
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
 
       - name: Bump da versão
+        id: versao
         run: |
           TIPO_DE_BUMP="${{ github.event.inputs.tipo_de_bump }}"
           BRANCH_ORIGEM="${{ github.event.inputs.branch }}"
