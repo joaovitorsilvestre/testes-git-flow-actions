@@ -55,8 +55,8 @@ jobs:
           fi
           
           echo "Nova versao: $new_version"
-          echo "NOVA_VERSAO='$new_version'" >> $GITHUB_OUTPUT
-          echo "TIPO_ATUALIZACAO='$TIPO_ATUALIZACAO'" >> $GITHUB_OUTPUT
+          echo "NOVA_VERSAO=$new_version" >> $GITHUB_OUTPUT
+          echo "TIPO_ATUALIZACAO=$TIPO_ATUALIZACAO" >> $GITHUB_OUTPUT
 
       - name: Criar PR para atualizar a branch develop
         if: github.event.pull_request.merged == true
@@ -72,7 +72,5 @@ jobs:
       - name: Criar tag
         if: github.event.pull_request.merged == true
         run: |
-          git tag ${{ steps.versao.outputs.NOVA_VERSAO }}
+          git tag -a ${{ steps.versao.outputs.NOVA_VERSAO }} -m "Release ${{ steps.versao.outputs.NOVA_VERSAO }}"
           git push origin ${{ steps.versao.outputs.NOVA_VERSAO }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
