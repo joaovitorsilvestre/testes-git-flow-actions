@@ -1,0 +1,17 @@
+{
+  "pull_request_title_regex": "^\[(fix|feat|major)\].*",
+  "group_config": [
+    {
+      "title": "Bug Fixes",
+      "labels": ["fix"]
+    },
+    {
+      "title": "New Features",
+      "labels": ["feat"]
+    },
+    {
+      "title": "Breaking Changes",
+      "labels": ["major"]
+    }
+  ]
+}
