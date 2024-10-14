@@ -21,9 +21,13 @@ jobs:
         run: |
           PR_TITLE=$(echo ${{ github.event.pull_request.title }} | tr '[:upper:]' '[:lower:]')
           PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
+          TARGET_BRANCH=$(echo ${{ github.base_ref }} | sed 's/refs\/heads\///')
           
           if [[ $PR_TITLE =~ ^\[release\].*v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
               echo "Nome da branch é válido"
+              if [[ $TARGET_BRANCH != "master" ]]; then
+                  echo "FECHAR_PR='PR de release só pode ser feito para a master'" >> $GITHUB_OUTPUT
+              fi
           elif [[ $PR_TITLE =~ ^\[(feat|major)\].*$ ]]; then
               if [[ $PR_BRANCH =~ ^hotfix/.*$ ]]; then
                   echo "FECHAR_PR='Branchs HOTFIX não podem ter título de PR com [feat] ou [major]'" >> $GITHUB_OUTPUT
@@ -59,14 +63,14 @@ jobs:
               else
                   echo "FECHAR_PR='PR com branch HOTFIX só pode ser feito para a master'" >> $GITHUB_OUTPUT
               fi
-          elif [[ $PR_BRANCH =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          elif [[ $PR_BRANCH =~ ^release/v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "Nome da branch é válido"
               if [[ $BRANCH_DESTINO_DO_PR != "master" ]]; then
                   echo "FECHAR_PR='PR de branch de versão (v0.0.0) só pode ser feito para a master'" >> $GITHUB_OUTPUT
               fi
           else
               echo "Nome da branch é inválido"
-              echo "FECHAR_PR='Nome de branch inválido! Nomes aceitos: `develop`, `feat/xpto`, `bugfix/xpto`, `v0.0.0` e `hotfix/xpto`'" >> $GITHUB_OUTPUT
+              echo "FECHAR_PR='Nome de branch inválido! Nomes aceitos: develop, feat/xpto, bugfix/xpto, v0.0.0 e hotfix/xpto'" >> $GITHUB_OUTPUT
           fi
 
       - name: Pegar arquivos modificados
