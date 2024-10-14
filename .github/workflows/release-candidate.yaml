@@ -95,8 +95,11 @@ jobs:
           BRANCH_DO_PR="${{ github.event.inputs.branch }}"
           NOVA_VERSAO="${{ steps.versao.outputs.NOVA_VERSAO }}"
           
+          echo "Branch de origem: $BRANCH_DO_PR"
+          echo "Nova versão: $NOVA_VERSAO"
+          
           if [[ $BRANCH_DO_PR == "develop" ]]; then
-            BRANCH_DO_PR="release-candidate/$NOVA_VERSAO"
+            BRANCH_DO_PR="release/$NOVA_VERSAO"
             git checkout -b "$BRANCH_DO_PR"
             git push origin "$BRANCH_DO_PR"
           fi
