@@ -91,7 +91,7 @@ jobs:
           BRANCH_DO_PR="${{ github.event.inputs.branch }}"
           NOVA_VERSAO="${{ steps.versao.outputs.NOVA_VERSAO }}"
           
-          if [[ $BRANCH_ORIGEM == "develop" ]]; then
+          if [[ $BRANCH_DO_PR == "develop" ]]; then
             BRANCH_DO_PR="release-candidate/$NOVA_VERSAO"
             git checkout -b $BRANCH_DO_PR
             git push origin $BRANCH_DO_PR
