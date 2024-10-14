@@ -103,4 +103,6 @@ jobs:
           gh pr close ${{ github.event.pull_request.number }}
 
       - name: Executar testes
+        # se for um PR da branch master para a develop não precisa rodar os testes
+        if: ${{ github.base_ref }} != 'master'
         uses: ./.github/rodar-testes
