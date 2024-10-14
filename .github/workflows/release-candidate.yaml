@@ -38,7 +38,7 @@ jobs:
         id: ultima_tag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
 
-      - name: Criar PR de release candidate
+      - name: Bump da versão
         run: |
           TIPO_DE_BUMP="${{ github.event.inputs.tipo_de_bump }}"
           BRANCH_ORIGEM="${{ github.event.inputs.branch }}"
@@ -97,10 +97,10 @@ jobs:
           
           if [[ $BRANCH_DO_PR == "develop" ]]; then
             BRANCH_DO_PR="release-candidate/$NOVA_VERSAO"
-            git checkout -b $BRANCH_DO_PR
-            git push origin $BRANCH_DO_PR
+            git checkout -b "$BRANCH_DO_PR"
+            git push origin "$BRANCH_DO_PR"
           fi
           
-          gh pr create -B $BRANCH_DO_PR -H master \
+          gh pr create -B "$BRANCH_DO_PR" -H master \
             --title "[release] Candidato a release" \
             --body 'Criada no github actions' || true
