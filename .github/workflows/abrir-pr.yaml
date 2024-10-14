@@ -61,7 +61,7 @@ jobs:
 
       - name: Validar se não alterou código nativou ou libs se for HOTFIX
         id: branch_hotfix_valida
-        if: steps.changed-files-yaml.outputs.arquivos_nativos_ou_libs == 'true'
+        if: steps.changed-files-yaml.outputs.arquivos_nativos_ou_libs_any_changed == 'true'
         run: |
           PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
           
