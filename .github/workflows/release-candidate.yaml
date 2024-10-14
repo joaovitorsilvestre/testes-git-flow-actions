@@ -44,7 +44,7 @@ jobs:
           BRANCH_ORIGEM="${{ github.event.inputs.branch }}"
           
           # validações
-          if [[ "$BRANCH_ORIGEM" ~= "hotfix/" ]]; then
+          if [[ "$BRANCH_ORIGEM" =~ ^hotfix\/ ]]; then
             if [[ "$TIPO_DE_BUMP" != "build" ]]; then
               echo "Para hotfix, o tipo de bump deve ser build"
               exit 1
@@ -56,7 +56,7 @@ jobs:
           
           # Bump version
           ULTIMA_TAG="${{ steps.ultima_tag.outputs.tag }}"
-          VERSAO_SEM_V="${ULTIMA_TAG:1}
+          VERSAO_SEM_V="${ULTIMA_TAG:1}"
           IFS='.' read -r major feat fix build <<< "$VERSAO_SEM_V"
           
           if [[ "$TIPO_DE_BUMP" == "major" ]]; then
@@ -75,6 +75,9 @@ jobs:
               build=$((build + 1))
           fi
           
+          # Define new version
+          new_version="v${major}.${feat}.${fix}.${build}"
+          
           # valida que a versão é válida
           if ! [[ "$new_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "Invalid version: $new_version"
@@ -83,7 +86,7 @@ jobs:
           
           echo "Nova versao: $new_version"
           echo "NOVA_VERSAO=$new_version" >> $GITHUB_OUTPUT
-          echo "TIPO_ATUALIZACAO=$TIPO_ATUALIZACAO" >> $GITHUB_OUTPUT
+          echo "TIPO_ATUALIZACAO=$TIPO_DE_BUMP" >> $GITHUB_OUTPUT
 
       - name: Criar PR
         run: |
