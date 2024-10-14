@@ -107,6 +107,6 @@ jobs:
             git push origin "$BRANCH_DO_PR"
           fi
           
-          gh pr create -B "$BRANCH_DO_PR" -H master \
+          gh pr create -B master -H "$BRANCH_DO_PR" \
             --title "[release] $NOVA_VERSAO" \
             --body 'Criada no github actions' || true
