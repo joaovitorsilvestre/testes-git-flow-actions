@@ -70,5 +70,7 @@ jobs:
       - name: Criar tag
         if: github.event.pull_request.merged == true
         run: |
+          git config --global user.email "dev@pontotel.com.br"
+          git config --global user.name "Bot"
           git tag -a ${{ steps.versao.outputs.NOVA_VERSAO }} -m "Release ${{ steps.versao.outputs.NOVA_VERSAO }}"
           git push origin ${{ steps.versao.outputs.NOVA_VERSAO }}
