@@ -1,0 +1,9 @@
+name: Rodar testes
+description: Roda os testes do projeto
+
+runs:
+  using: composite
+  steps:
+    - name: "Rodando testes"
+      shell: bash
+      run: echo "Rodando testes"
