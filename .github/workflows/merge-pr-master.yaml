@@ -73,15 +73,11 @@ jobs:
           git tag -a ${{ steps.versao.outputs.NOVA_VERSAO }} -m "Release ${{ steps.versao.outputs.NOVA_VERSAO }}"
           git push origin ${{ steps.versao.outputs.NOVA_VERSAO }}
 
-      - name: Update CHANGELOG
-        if: github.event.pull_request.merged == true
-        id: changelog
-        uses: requarks/changelog-action@v1
+      - name: Run Changelog CI
+        uses: saadmk11/changelog-ci@v1.1.2
+        id: changelog-ci
         with:
-          token: ${{ secrets.DEV_USER_TOKEN }}
-          includeInvalidCommits: true
-          tag: ${{ steps.versao.outputs.NOVA_VERSAO }}
-          excludeTypes: ''
+          config_file: changelog-ci-config.json
 
       - name: Create Release
         if: github.event.pull_request.merged == true
@@ -92,6 +88,6 @@ jobs:
           makeLatest: true
           name: ${{ steps.versao.outputs.NOVA_VERSAO }}
           tag: ${{ steps.versao.outputs.NOVA_VERSAO }}
-          body: ${{ steps.changelog.outputs.changes }}
+          body: ${{ steps.changelog-ci.outputs.changelog }}
           token: ${{ secrets.DEV_USER_TOKEN }}
           reverseOrder: true

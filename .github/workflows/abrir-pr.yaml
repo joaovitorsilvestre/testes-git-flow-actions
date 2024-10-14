@@ -73,6 +73,18 @@ jobs:
               echo "FECHAR_PR='Nome de branch inválido! Nomes aceitos: develop, feat/xpto, bugfix/xpto, v0.0.0 e hotfix/xpto'" >> $GITHUB_OUTPUT
           fi
 
+      - name: Adiciona label no PR
+        run: |
+          PR_TITLE=$(echo ${{ github.event.pull_request.title }} | tr '[:upper:]' '[:lower:]')
+          
+          if [[ $PR_TITLE =~ ^\[fix\].*$ ]]; then
+              gh pr edit ${{ github.event.pull_request.number }} --add-label "fix"
+          elif [[ $PR_TITLE =~ ^\[(feat|major)\].*$ ]]; then
+              gh pr edit ${{ github.event.pull_request.number }} --add-label "feature"
+          elif [[ $PR_TITLE =~ ^\[release\].*v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+              gh pr edit ${{ github.event.pull_request.number }} --add-label "release"
+          fi
+
       - name: Pegar arquivos modificados
         id: changed-files-yaml
         uses: tj-actions/changed-files@v43
