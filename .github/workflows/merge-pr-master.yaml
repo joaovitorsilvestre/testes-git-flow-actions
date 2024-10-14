@@ -40,7 +40,7 @@ jobs:
           echo "Branch do PR: $pr_branch"
           
           # Se o nome da branch começar com hotfix/ o tipo é de build
-          if [[ "$pr_branch" =~ ^hotfix/ ]]; then
+          if [[ "$pr_branch" =~ ^hotfix\/ ]]; then
             IFS='.' read -r major feat fix build <<< "${{ steps.ultima_tag.outputs.tag }}"
             build=$((build + 1))
             new_version="$major.$feat.$fix.$build"
