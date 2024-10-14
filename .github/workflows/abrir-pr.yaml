@@ -67,6 +67,7 @@ jobs:
           
           if [[ $PR_BRANCH =~ ^hotfix/.*$ ]]; then
               echo "Branchs HOTFIX não podem alterar código nativo ou bibliotecas"
+              echo "FECHAR_PR='Branchs HOTFIX não podem alterar código nativo ou bibliotecas'" >> $GITHUB_OUTPUT
           fi
 
       - name: Fechar PR se for preciso com a mensagem do motivo
