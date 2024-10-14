@@ -27,7 +27,7 @@ jobs:
       - name: Bump version
         id: versao
         if: github.event.pull_request.merged == true
-        run: |
+        run: |          
           pr_title="${{ github.event.pull_request.title }}"
           pr_branch="${{ github.head_ref }}"
           
@@ -36,6 +36,7 @@ jobs:
           
           # Se o nome da branch começar com hotfix/ o tipo é de build
           if [[ "$pr_branch" =~ ^hotfix/ ]]; then
+            IFS='.' read -r major feat fix build <<< "${{ steps.ultima_tag.outputs.tag }}"
             build=$((build + 1))
             new_version="v$major.$feat.$fix.$build"
           elif ! [[ "$pr_branch" =~ ^v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
