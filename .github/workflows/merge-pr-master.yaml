@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 jobs:
-  merge-pr:
+  criar-release:
     runs-on:
       - ubuntu-latest
 
