@@ -78,7 +78,7 @@ jobs:
               ;;
           esac
           
-          new_version="$major.$feat.$fix.$build"
+          new_version="v$major.$feat.$fix.$build"
           
           # valida que a versão é válida
           if ! [[ "$new_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
