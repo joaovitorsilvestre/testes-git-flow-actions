@@ -51,7 +51,7 @@ jobs:
           new_version="$major.$minor.$patch.$build"
           
           # valida que a versão é válida
-          if ! [[ "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if ! [[ "$new_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "Invalid version: $new_version"
               exit 1
           fi
