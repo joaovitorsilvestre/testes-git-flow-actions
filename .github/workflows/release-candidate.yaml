@@ -99,6 +99,6 @@ jobs:
             git push origin $BRANCH_DO_PR
           fi
           
-          gh pr create -B ${{ $BRANCH_DO_PR }} -H master \
+          gh pr create -B $BRANCH_DO_PR -H master \
             --title "[release] Candidato a release" \
             --body 'Criada no github actions' || true
