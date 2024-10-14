@@ -45,7 +45,7 @@ jobs:
             build=$((build + 1))
             new_version="$major.$feat.$fix.$build"
             TIPO_ATUALIZACAO="rollout"
-          elif ! [[ "$pr_branch" =~ ^v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
+          elif [[ "$pr_branch" =~ ^v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
             new_version="$pr_branch.0"
             TIPO_ATUALIZACAO="loja"
           else
