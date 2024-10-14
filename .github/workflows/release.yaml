@@ -1,93 +1,42 @@
-name: "Criar release"
+name: Criação de release
 
 on:
-  pull_request:
-    types:
-      - closed
-    branches:
-      - master
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+.[0-9]+
 
 jobs:
-  validar-pr:
-    runs-on:
-      - ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v3
-        if: github.event.pull_request.merged == true
         with:
           fetch-depth: 0
 
-      - name: Pegar a última tag
-        if: github.event.pull_request.merged == true
-        id: ultima_tag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
-
-      - name: Determine bump type from PR title
-        id: determine_bump
+      - name: Get previous tag
+        id: previousTag
         run: |
-          pr_title="${{ github.event.pull_request.title }}"
-          pr_branch="${{ github.head_ref }}"
-          
-          echo "Titulo do PR: $pr_title"
-          echo "Branch do PR: $pr_branch"
-          
-          # Se o nome da branch começar com hotfix/ o tipo é de build
-          if [[ "$pr_branch" =~ ^hotfix/ ]]; then
-            bump_type="build"
-          elif [[ "$pr_title" =~ ^\[major\] ]]; then
-            bump_type="major"
-          elif [[ "$pr_title" =~ ^\[feat\] ]]; then
-            bump_type="feat"
-          elif [[ "$pr_title" =~ ^\[fix\] ]]; then
-            bump_type="fix"
-          else
-            echo "Caminho inválido, existe algum erro de lógica nas nossas actions de validar nome de pr e branch."
-            exit 1
-          fi
-          
-          echo "bump_type=$bump_type" >> $GITHUB_OUTPUT
+          name=$(git --no-pager tag --sort=creatordate --merged ${{ github.ref_name }} | tail -2 | head -1)
+          echo "previousTag: $name"
+          echo "previousTag=$name" >> $GITHUB_ENV
 
-      - name: Bump version
-        if: github.event.pull_request.merged == true
-        run: |
-          IFS='.' read -r major feat fix build <<< "${{ steps.ultima_tag.outputs.tag }}"
-          bump_type="${{ steps.determine_bump.outputs.bump_type }}"
-          
-          case "$bump_type" in
-            major)
-              major=$((major + 1))
-              feat=0
-              fix=0
-              build=0
-              ;;
-            feat)
-              feat=$((feat + 1))
-              fix=0
-              build=0
-              ;;
-            fix)
-              fix=$((fix + 1))
-              build=0
-              ;;
-            build)
-              build=$((build + 1))
-              ;;
-            *)
-              echo "Invalid bump type. Use: major, feat, fix, or build."
-              exit 1
-              ;;
-          esac
-          
-          new_version="v$major.$feat.$fix.$build"
-          
-          # valida que a versão é válida
-          if ! [[ "$new_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "Invalid version: $new_version"
-              exit 1
-          fi
-          
-          echo "nova versaoooo"
-          echo "$new_version"
+      - name: Update CHANGELOG
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ github.token }}
+          fromTag: ${{ github.ref_name }}
+          toTag: ${{ env.previousTag }}
+          writeToFile: false
 
+      - name: Create Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          allowUpdates: true
+          draft: true
+          makeLatest: true
+          name: ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.changes }}
+          token: ${{ secrets.DEV_USER_TOKEN }}
