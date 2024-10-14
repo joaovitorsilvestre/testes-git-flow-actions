@@ -20,7 +20,7 @@ jobs:
 
       - name: Bump version
         run: |
-          IFS='.' read -r major minor patch build <<< "${{ steps.previoustag.outputs.tag }}"
+          IFS='.' read -r major minor patch build <<< "${{ steps.ultima_tag.outputs.tag }}"
           bump_type="minor"
           
           case "$bump_type" in
@@ -49,5 +49,12 @@ jobs:
           esac
           
           new_version="$major.$minor.$patch.$build"
+          
+          # valida que a versão é válida
+          if ! [[ "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Invalid version: $new_version"
+              exit 1
+          fi
+          
           echo "nova versaoooo"
           echo "$new_version"
