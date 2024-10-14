@@ -45,13 +45,15 @@ jobs:
             build=$((build + 1))
             new_version="$major.$feat.$fix.$build"
             TIPO_ATUALIZACAO="rollout"
-          elif [[ "$pr_branch" =~ ^v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
-            new_version="$pr_branch.0"
+          elif [[ "$pr_branch" =~ ^release\/v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
+            new_version="${pr_branch:9}"
             TIPO_ATUALIZACAO="loja"
           else
             echo "Falha nos bloquios de PR, pois para mergear na master só poderia se a branch começar com 'hotfix/' ou se de release no formato 'v0.0.0'"
             exit 1
           fi
+          
+          new_version
           
           # valida que a versão é válida
           if ! [[ "$new_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
