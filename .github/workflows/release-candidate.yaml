@@ -35,7 +35,6 @@ jobs:
           ref: develop
 
       - name: Pegar a última tag
-        if: github.event.pull_request.merged == true
         id: ultima_tag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
 
@@ -45,7 +44,7 @@ jobs:
           BRANCH_ORIGEM="${{ github.event.inputs.branch }}"
           
           # validações
-          if [[ $BRANCH_ORIGEM ~= "hotfix/" ]]; then
+          if [[ "$BRANCH_ORIGEM" ~= "hotfix/" ]]; then
             if [[ "$TIPO_DE_BUMP" != "build" ]]; then
               echo "Para hotfix, o tipo de bump deve ser build"
               exit 1
@@ -60,19 +59,19 @@ jobs:
           VERSAO_SEM_V="${ULTIMA_TAG:1}
           IFS='.' read -r major feat fix build <<< "$VERSAO_SEM_V"
           
-          if [[ $TIPO_DE_BUMP == "major" ]]; then
+          if [[ "$TIPO_DE_BUMP" == "major" ]]; then
               major=$((major + 1))
               feat=0
               fix=0
               build=0
-          elif [[ $TIPO_DE_BUMP == "feature" ]]; then
+          elif [[ "$TIPO_DE_BUMP" == "feature" ]]; then
               feat=$((feat + 1))
               fix=0
               build=0
-          elif [[ $TIPO_DE_BUMP == "fix" ]]; then
+          elif [[ "$TIPO_DE_BUMP" == "fix" ]]; then
               fix=$((fix + 1))
               build=0
-          elif [[ $TIPO_DE_BUMP == "build" ]]; then
+          elif [[ "$TIPO_DE_BUMP" == "build" ]]; then
               build=$((build + 1))
           fi
           
