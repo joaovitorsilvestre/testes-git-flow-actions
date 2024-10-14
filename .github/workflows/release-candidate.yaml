@@ -7,9 +7,11 @@ on:
         description: 'Branch de origem'
         required: true
         default: 'develop'
+        type: string
 
       tipo_de_bump:
         description: 'Tipo de bump'
+        type: choice
         required: true
         options:
           - 'major'
