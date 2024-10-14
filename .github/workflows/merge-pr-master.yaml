@@ -1,5 +1,7 @@
 name: "Merge de PR na master"
 
+run-name: 'Criando nova release'
+
 on:
   pull_request:
     types:
