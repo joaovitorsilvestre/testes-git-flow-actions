@@ -1,0 +1,53 @@
+name: "Criar release"
+
+on:
+  pull_request:
+
+jobs:
+  validar-pr:
+    runs-on:
+      - ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Pegar a última tag
+        id: ultima_tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fetch-depth: 0
+
+      - name: Bump version
+        run: |
+          IFS='.' read -r major minor patch build <<< "${{ steps.previoustag.outputs.tag }}"
+          bump_type="minor"
+          
+          case "$bump_type" in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              build=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              build=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              build=0
+              ;;
+            build)
+              build=$((build + 1))
+              ;;
+            *)
+              echo "Invalid bump type. Use: major, minor, patch, or build."
+              exit 1
+              ;;
+          esac
+          
+          new_version="$major.$minor.$patch.$build"
+          echo "nova versaoooo"
+          echo "$new_version"
