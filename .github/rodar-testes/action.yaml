@@ -1,8 +1,5 @@
 name: Rodar testes
 
-on:
-  pull_request:
-
 jobs:
   validar-pr:
     runs-on:
