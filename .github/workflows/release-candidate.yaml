@@ -99,6 +99,6 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          gh pr create -B ${{ BRANCH_ORIGEM }} -H master \
+          gh pr create -B ${{ $BRANCH_DO_PR }} -H master \
             --title "[release] Candidato a release" \
             --body 'Criada no github actions' || true
