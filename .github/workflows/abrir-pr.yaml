@@ -21,7 +21,7 @@ jobs:
         run: |
           PR_TITLE=$(echo ${{ github.event.pull_request.title }} | tr '[:upper:]' '[:lower:]')
           
-          if [[ $PR_TITLE =~ ^\[release\] Atualizar branch develop pós release v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ $PR_TITLE =~ ^\[release\].*v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "Nome da branch é válido"
           elif [[ $PR_TITLE =~ ^\[(fix|feat|major)\].*$ ]]; then
               echo "Título do PR válido"
