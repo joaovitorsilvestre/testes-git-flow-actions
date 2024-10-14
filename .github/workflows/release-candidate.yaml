@@ -1,0 +1,102 @@
+name: Criar release candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch de origem'
+        required: true
+        default: 'develop'
+
+      tipo_de_bump:
+        description: 'Tipo de bump'
+        required: true
+        options:
+          - 'major'
+          - 'feature'
+          - 'fix'
+          - 'build'
+
+permissions:
+  contents: write
+
+jobs:
+  criar-release-candidate:
+    runs-on:
+    - ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: develop
+
+      - name: Pegar a última tag
+        if: github.event.pull_request.merged == true
+        id: ultima_tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+
+      - name: Criar PR de release candidate
+        run: |
+          TIPO_DE_BUMP="${{ github.event.inputs.tipo_de_bump }}"
+          BRANCH_ORIGEM="${{ github.event.inputs.branch }}"
+          
+          # validações
+          if [[ $BRANCH_ORIGEM ~= "hotfix/" ]]; then
+            if [[ $TIPO_DE_BUMP != "build" ]]; then
+              echo "Para hotfix, o tipo de bump deve ser build"
+              exit 1
+            fi
+          elif [[ $BRANCH_ORIGEM != "develop" ]]; then
+            echo "Só é permitido gerar release candidate a partir da branch develop ou de uma de hotfix"
+            exit 1
+          fi
+          
+          # Bump version
+          ULTIMA_TAG="${{ steps.ultima_tag.outputs.tag }}"
+          VERSAO_SEM_V="${ULTIMA_TAG:1}
+          IFS='.' read -r major feat fix build <<< "$VERSAO_SEM_V"
+          
+          if [[ $TIPO_DE_BUMP == "major" ]]; then
+              major=$((major + 1))
+              feat=0
+              fix=0
+              build=0
+          elif [[ $TIPO_DE_BUMP == "feature" ]]; then
+              feat=$((feat + 1))
+              fix=0
+              build=0
+          elif [[ $TIPO_DE_BUMP == "fix" ]]; then
+              fix=$((fix + 1))
+              build=0
+          elif [[ $TIPO_DE_BUMP == "build" ]]; then
+              build=$((build + 1))
+          fi
+          
+          # valida que a versão é válida
+          if ! [[ "$new_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Invalid version: $new_version"
+              exit 1
+          fi
+          
+          echo "Nova versao: $new_version"
+          echo "NOVA_VERSAO=$new_version" >> $GITHUB_OUTPUT
+          echo "TIPO_ATUALIZACAO=$TIPO_ATUALIZACAO" >> $GITHUB_OUTPUT
+
+      - name: Criar PR
+        run: |
+          BRANCH_DO_PR="${{ github.event.inputs.branch }}"
+          NOVA_VERSAO="${{ steps.versao.outputs.NOVA_VERSAO }}"
+          
+          if [[ $BRANCH_ORIGEM == "develop" ]]; then
+            BRANCH_DO_PR="release-candidate/$NOVA_VERSAO"
+            git checkout -b $BRANCH_DO_PR
+            git push origin $BRANCH_DO_PR
+          fi
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          gh pr create -B ${{ BRANCH_ORIGEM }} -H master \
+            --title "[release] Candidato a release" \
+            --body 'Criada no github actions' || true
