@@ -1,79 +1,42 @@
-name: "Criar release"
+name: Criação de release
 
 on:
-  pull_request:
-    types:
-      - closed
-    branches:
-      - master
-
-permissions:
-  contents: write
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+.[0-9]+
 
 jobs:
-  validar-pr:
-    runs-on:
-      - ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v3
-        if: github.event.pull_request.merged == true
         with:
           fetch-depth: 0
 
-      - name: Pegar a última tag
-        if: github.event.pull_request.merged == true
-        id: ultima_tag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
-
-      - name: Bump version
-        id: versao
-        if: github.event.pull_request.merged == true
-        run: |          
-          pr_title="${{ github.event.pull_request.title }}"
-          pr_branch="${{ github.head_ref }}"
-          
-          echo "Titulo do PR: $pr_title"
-          echo "Branch do PR: $pr_branch"
-          
-          # Se o nome da branch começar com hotfix/ o tipo é de build
-          if [[ "$pr_branch" =~ ^hotfix/ ]]; then
-            IFS='.' read -r major feat fix build <<< "${{ steps.ultima_tag.outputs.tag }}"
-            build=$((build + 1))
-            new_version="$major.$feat.$fix.$build"
-            TIPO_ATUALIZACAO="rollout"
-          elif ! [[ "$pr_branch" =~ ^v[0-9]+\.[0-9]+\.[0-9]$ ]]; then
-            new_version="$pr_branch.0"
-            TIPO_ATUALIZACAO="loja"
-          else
-            echo "Falha nos bloquios de PR, pois para mergear na master só poderia se a branch começar com `hotfix/` ou se de release no formato `v0.0.0`"
-            exit 1
-          fi
-          
-          # valida que a versão é válida
-          if ! [[ "$new_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "Invalid version: $new_version"
-              exit 1
-          fi
-          
-          echo "Nova versao: $new_version"
-          echo "NOVA_VERSAO=$new_version" >> $GITHUB_OUTPUT
-          echo "TIPO_ATUALIZACAO=$TIPO_ATUALIZACAO" >> $GITHUB_OUTPUT
-
-      - name: Criar PR para atualizar a branch develop
-        if: github.event.pull_request.merged == true
+      - name: Get previous tag
+        id: previousTag
         run: |
-          gh pr create -B develop -H master \
-            --title "[release] Atualizar branch develop pós release ${{ steps.versao.outputs.NOVA_VERSAO }}" \
-            --body 'Criada no github actions'
-        env:
-          GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
+          name=$(git --no-pager tag --sort=creatordate --merged ${{ github.ref_name }} | tail -2 | head -1)
+          echo "previousTag: $name"
+          echo "previousTag=$name" >> $GITHUB_ENV
 
-      - name: Criar tag
-        if: github.event.pull_request.merged == true
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git tag -a ${{ steps.versao.outputs.NOVA_VERSAO }} -m "Release ${{ steps.versao.outputs.NOVA_VERSAO }}"
-          git push origin ${{ steps.versao.outputs.NOVA_VERSAO }}
+      - name: Update CHANGELOG
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ github.token }}
+          fromTag: ${{ github.ref_name }}
+          toTag: ${{ env.previousTag }}
+          writeToFile: false
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          allowUpdates: true
+          draft: true
+          makeLatest: true
+          name: ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.changes }}
+          token: ${{ secrets.DEV_USER_TOKEN }}
