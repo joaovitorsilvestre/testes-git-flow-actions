@@ -20,10 +20,17 @@ jobs:
 
         run: |
           PR_TITLE=$(echo ${{ github.event.pull_request.title }} | tr '[:upper:]' '[:lower:]')
+          PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
           
           if [[ $PR_TITLE =~ ^\[release\].*v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "Nome da branch é válido"
-          elif [[ $PR_TITLE =~ ^\[(fix|feat|major)\].*$ ]]; then
+          elif [[ $PR_TITLE =~ ^\[(feat|major)\].*$ ]]; then
+              if [[ $PR_BRANCH =~ ^hotfix/.*$ ]]; then
+                  echo "FECHAR_PR='Branchs HOTFIX não podem ter título de PR com [feat] ou [major]'" >> $GITHUB_OUTPUT
+              else
+                echo "Título do PR válido"
+              fi
+          elif [[ $PR_TITLE =~ ^\[(fix)\].*$ ]]; then
               echo "Título do PR válido"
           else
               echo "Título do PR inválido"
