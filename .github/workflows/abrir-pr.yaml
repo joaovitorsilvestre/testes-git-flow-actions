@@ -88,4 +88,4 @@ jobs:
           gh pr close ${{ github.event.pull_request.number }}
 
       - name: Executar testes
-        uses: .github/rodar-testes
+        uses: ./.github/rodar-testes
