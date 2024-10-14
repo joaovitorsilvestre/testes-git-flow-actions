@@ -16,11 +16,14 @@ jobs:
         id: pr_valido
         # Valida que o PR tem o titulo no formato certo. Regras:
         # Ele deve começar com o nível de alteração: [fix], [feat] ou [major]
+        # Ou deve ser um PR de release: [release] Atualizar branch develop pós release
 
         run: |
           PR_TITLE=$(echo ${{ github.event.pull_request.title }} | tr '[:upper:]' '[:lower:]')
           
-          if [[ $PR_TITLE =~ ^\[(fix|feat|major)\].*$ ]]; then
+          if [[ $PR_TITLE =~ ^\[release\].*v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Nome da branch é válido"
+          elif [[ $PR_TITLE =~ ^\[(fix|feat|major)\].*$ ]]; then
               echo "Título do PR válido"
           else
               echo "Título do PR inválido"
@@ -34,18 +37,29 @@ jobs:
         # * Branches de desenvolvimento de funcionalidades: feat/xpto
         # * Branches de desenvolvimento de correções de bug: bugfix/xpto
         # * Branches de versão canditadas a lançamento: v0.0.0
+        #       obs: somente para a master
         # * Branches de correções de emergência: hotfix/xpto
+        #       obs: somente para a master
         run: |
           PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
+          BRANCH_DESTINO_DO_PR=$(echo ${{ github.base_ref }} | sed 's/refs\/heads\///')
           
-          if [[ $PR_BRANCH == "develop" ]]; then
+          if [[ $PR_BRANCH =~ ^feat/.*$ || $PR_BRANCH =~ ^bugfix/.*$ ]]; then
               echo "Nome da branch é válido"
-              echo "FECHAR_PR='Titulo de PR inválido'" >> $GITHUB_OUTPUT
-          elif [[ $PR_BRANCH =~ ^feat/.*$ || $PR_BRANCH =~ ^bugfix/.*$ || $PR_BRANCH =~ ^hotfix/.*$ || $PR_BRANCH =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          elif [[ $PR_BRANCH =~ ^hotfix/.*$ ]]; then
+              if [[ $BRANCH_DESTINO_DO_PR == "master" ]]; then
+                  echo "Nome da branch é válido"
+              else
+                  echo "FECHAR_PR='PR com branch HOTFIX só pode ser feito para a master'" >> $GITHUB_OUTPUT
+              fi
+          elif [[ $PR_BRANCH =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "Nome da branch é válido"
+              if [[ $BRANCH_DESTINO_DO_PR != "master" ]]; then
+                  echo "FECHAR_PR='PR de branch de versão (v0.0.0) só pode ser feito para a master'" >> $GITHUB_OUTPUT
+              fi
           else
               echo "Nome da branch é inválido"
-              echo "FECHAR_PR='Nome de branch inválido! Nomes aceitos: develop, feat/xpto, bugfix/xpto, v0.0.0 e hotfix/xpto'" >> $GITHUB_OUTPUT
+              echo "FECHAR_PR='Nome de branch inválido! Nomes aceitos: `develop`, `feat/xpto`, `bugfix/xpto`, `v0.0.0` e `hotfix/xpto`'" >> $GITHUB_OUTPUT
           fi
 
       - name: Pegar arquivos modificados
