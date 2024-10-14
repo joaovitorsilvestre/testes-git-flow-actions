@@ -21,9 +21,13 @@ jobs:
         run: |
           PR_TITLE=$(echo ${{ github.event.pull_request.title }} | tr '[:upper:]' '[:lower:]')
           PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
+          TARGET_BRANCH=$(echo ${{ github.base_ref }} | sed 's/refs\/heads\///')
           
           if [[ $PR_TITLE =~ ^\[release\].*v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
               echo "Nome da branch é válido"
+              if [[ $TARGET_BRANCH != "master" ]]; then
+                  echo "FECHAR_PR='PR de release só pode ser feito para a master'" >> $GITHUB_OUTPUT
+              fi
           elif [[ $PR_TITLE =~ ^\[(feat|major)\].*$ ]]; then
               if [[ $PR_BRANCH =~ ^hotfix/.*$ ]]; then
                   echo "FECHAR_PR='Branchs HOTFIX não podem ter título de PR com [feat] ou [major]'" >> $GITHUB_OUTPUT
