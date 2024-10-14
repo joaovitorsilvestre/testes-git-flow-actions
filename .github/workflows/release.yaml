@@ -61,8 +61,6 @@ jobs:
       - name: Criar PR para atualizar a branch develop
         if: github.event.pull_request.merged == true
         run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
           gh pr create -B develop -H master \
             --title "[release] Atualizar branch develop pós release ${{ steps.versao.outputs.NOVA_VERSAO }}" \
             --body 'Criada no github actions'
