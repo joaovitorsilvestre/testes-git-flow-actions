@@ -107,6 +107,11 @@ jobs:
               CHANGELOG+="\n\n"
           fi
           
+          echo "******"
+          echo "$CHANGELOG"
+          echo "******"
+          
+          
           echo 'var<<EOF' >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
