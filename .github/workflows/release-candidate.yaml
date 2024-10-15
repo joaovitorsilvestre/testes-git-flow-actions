@@ -14,10 +14,10 @@ on:
         type: choice
         required: true
         options:
-          - 'major'
-          - 'feature'
-          - 'fix'
           - 'build'
+          - 'fix'
+          - 'feature'
+          - 'major'
 
 permissions:
   contents: write
@@ -27,6 +27,7 @@ jobs:
     runs-on:
     - ubuntu-latest
 
+    if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout
         uses: actions/checkout@v3

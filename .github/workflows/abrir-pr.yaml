@@ -80,9 +80,9 @@ jobs:
           PR_TITLE="${{ github.event.pull_request.title }}"
           
           # cria labels se não existir
-          gh create label "fix" || true
-          gh create label "feature" || true
-          gh create label "release" || true
+          gh label create "fix" || true
+          gh label create "feature" || true
+          gh label create "release" || true
 
           if [[ $PR_TITLE =~ ^\[fix\].*$ ]]; then
               gh pr edit ${{ github.event.pull_request.number }} --add-label "fix"
