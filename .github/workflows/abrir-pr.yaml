@@ -36,7 +36,9 @@ jobs:
           elif [[ $PR_TITLE =~ ^\[sync\].*v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
               echo "Nome da branch é válido"
               if [[ $TARGET_BRANCH != "develop" ]]; then
-                  echo "FECHAR_PR='PR sync da master com a develop só pode ser para a develop'" >> $GITHUB_OUTPUT
+                  echo "FECHAR_PR='PR de sync só pode ser feito para a develop'" >> $GITHUB_OUTPUT
+              elif [[ $PR_BRANCH != "master" ]]; then
+                  echo "FECHAR_PR='PR de sync só pode ser feito da master para a develop'" >> $GITHUB_OUTPUT
               fi
           elif [[ $PR_TITLE =~ ^\[(feat|major)\].*$ ]]; then
               if [[ $PR_BRANCH =~ ^hotfix/.*$ ]]; then
