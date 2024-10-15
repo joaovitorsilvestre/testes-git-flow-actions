@@ -75,6 +75,7 @@ jobs:
         run: |
           TAG_INICIAL=${{ steps.ultima_tag.outputs.tag }}
           TAG_FINAL=${{ steps.versao.outputs.NOVA_VERSAO }}
+          git fetch --tags
           
           chmod +x .github/scripts/pegar_prs.sh
           .github/scripts/pegar_prs.sh develop $TAG_INICIAL $TAG_FINAL "\[feat|major\]" features_develop.txt
