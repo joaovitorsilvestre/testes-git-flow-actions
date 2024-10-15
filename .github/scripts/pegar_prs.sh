@@ -7,9 +7,9 @@ TAG_FINAL="$3"
 REGEX="$4"
 RESULTADO="$5"
 
-# gratante que tem a evn NOME_DO_REPOSITORIO
-if [ -z "$NOME_DO_REPOSITORIO" ]; then
-  echo "env NOME_DO_REPOSITORIO não foi definido"
+# gratante que tem a evn NOME_DO_REPOSITORIO_COM_OWNER
+if [ -z "$NOME_DO_REPOSITORIO_COM_OWNER" ]; then
+  echo "env NOME_DO_REPOSITORIO_COM_OWNER não foi definido"
   exit 1
 fi
 
@@ -22,5 +22,5 @@ echo "RESULTADO: $RESULTADO"
 MERGED="$(git log -1 --format=%cI $TAG_INICIAL)..$(git log -1 --format=%cI $TAG_FINAL)"
 
 gh search prs --base $PR_PARA_A_BRANCH \
---merged-at "$MERGED" --repo $NOME_DO_REPOSITORIO \
+--merged-at "$MERGED" --repo $NOME_DO_REPOSITORIO_COM_OWNER \
 --json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"' | grep -E "$REGEX" > $RESULTADO
