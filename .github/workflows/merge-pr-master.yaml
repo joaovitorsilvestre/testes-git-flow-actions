@@ -40,15 +40,16 @@ jobs:
           
           # Se o nome da branch começar com hotfix/ o tipo é de build
           if [[ "$pr_branch" =~ ^hotfix\/ ]]; then
+            IFS='.' read -r major feat fix build <<< "${{ steps.ultima_tag.outputs.tag }}"
+            new_version="${major}.${feat}.${fix}.$((build+1))"
             TIPO_ATUALIZACAO="rollout"
           elif [[ "$pr_branch" =~ ^release\/v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             TIPO_ATUALIZACAO="loja"
+            new_version="${pr_title:10}"
           else
             echo "Falha nos bloquios de PR, pois para mergear na master só poderia se a branch começar com 'hotfix/' ou se de release no formato 'release/v0.0.0.0'"
             exit 1
           fi
-
-          new_version="${pr_title:10}"
           
           # valida que a versão é válida
           if ! [[ "$new_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
