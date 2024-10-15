@@ -10,7 +10,11 @@ echo "TAG_FINAL: $TAG_FINAL"
 echo "REGEX: $REGEX"
 echo "RESULTADO: $RESULTADO"
 
-SEARCH="merged:$(git log -1 --format=%cI $TAG_INICIAL)..$(git log -1 --format=%cI $TAG_FINAL)"
+# Temos que adicionar 10 segundos a mais, senão iremos pegar as mudanças da última tag também
+HORARIO_TAG_INICIAL=$(git log -1 --format=%cI $TAG_INICIAL)
+HORARIO_TAG_INICIAL=$(date +"%Y-%m-%dT%H:%M:%S%z" --date=@$(($(date +%s --date="$HORARIO_TAG_INICIAL") + 10)))
+
+SEARCH="merged:$HORARIO_TAG_INICIAL..$(git log -1 --format=%cI $TAG_FINAL)"
 echo "SEARCH: $SEARCH"
 
 gh pr list --base $PR_PARA_A_BRANCH \
