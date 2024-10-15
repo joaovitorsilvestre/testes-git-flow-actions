@@ -21,3 +21,6 @@ gh pr list --base $PR_PARA_A_BRANCH \
 --search "$SEARCH" --state merged \
 --json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"' | grep -E "$REGEX" > $RESULTADO
 echo "finalizado"
+echo "resultado:"
+cat $RESULTADO
+echo "*************"
