@@ -77,7 +77,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
         run: |
-          PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | tr '[:upper:]' '[:lower:]')
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          
+          # cria labels se não existir
+          gh create label "fix" || true
+          gh create label "feature" || true
+          gh create label "release" || true
 
           if [[ $PR_TITLE =~ ^\[fix\].*$ ]]; then
               gh pr edit ${{ github.event.pull_request.number }} --add-label "fix"
