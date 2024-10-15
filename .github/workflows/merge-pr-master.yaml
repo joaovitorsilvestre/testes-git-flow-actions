@@ -111,7 +111,6 @@ jobs:
           echo "$CHANGELOG"
           echo "******"
           
-          
           echo 'var<<EOF' >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
@@ -124,5 +123,5 @@ jobs:
           makeLatest: true
           name: ${{ steps.versao.outputs.NOVA_VERSAO }}
           tag: ${{ steps.versao.outputs.NOVA_VERSAO }}
-          body: ${{ steps.changelog-ci.outputs.changelog }}
+          body: ${{ steps.changelog-ci.outputs.var }}
           token: ${{ secrets.DEV_USER_TOKEN }}
