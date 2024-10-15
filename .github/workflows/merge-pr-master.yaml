@@ -81,7 +81,7 @@ jobs:
           TAG_INICIAL=${{ steps.ultima_tag.outputs.tag }}
           TAG_FINAL=${{ steps.versao.outputs.NOVA_VERSAO }}
           
-          SEARCH="merged:>=$(git log -1 --format=%cI v0.0.0.14) merged:<=$(git log -1 --format=%cI v0.3.5.0)"
+          SEARCH="merged:>=$(git log -1 --format=%cI $TAG_INICIAL) merged:<=$(git log -1 --format=%cI $TAG_FINAL)"
           
           gh pr list --base develop \ 
             --search "$SEARCH" \
