@@ -13,8 +13,10 @@ echo "TAG_FINAL: $TAG_FINAL"
 echo "REGEX: $REGEX"
 echo "RESULTADO: $RESULTADO"
 
+REPO_WITH_OWNER=$(git config --get remote.origin.url | sed 's/.*://;s/.git$//')
+
 MERGED="$(git log -1 --format=%cI $TAG_INICIAL)..$(git log -1 --format=%cI $TAG_FINAL)"
 
 gh search prs --base $PR_PARA_A_BRANCH \
---merged-at "$MERGED" \
+--merged-at "$MERGED" --repo $REPO_WITH_OWNER \
 --json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"' | grep -E "$REGEX" > $RESULTADO

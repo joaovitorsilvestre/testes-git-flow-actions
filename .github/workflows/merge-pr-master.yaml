@@ -61,14 +61,6 @@ jobs:
           echo "NOVA_VERSAO=$new_version" >> $GITHUB_OUTPUT
           echo "TIPO_ATUALIZACAO=$TIPO_ATUALIZACAO" >> $GITHUB_OUTPUT
 
-      - name: Criar PR para atualizar a branch develop
-        run: |
-          gh pr create -B develop -H master \
-            --title "[sync] Atualizar branch develop pós release ${{ steps.versao.outputs.NOVA_VERSAO }}" \
-            --body 'Criada no github actions' || true
-        env:
-          GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
-
       - name: Criar tag
         run: |
           git config --local user.email "action@github.com"
@@ -126,3 +118,13 @@ jobs:
           tag: ${{ steps.versao.outputs.NOVA_VERSAO }}
           body: ${{ steps.changelog-ci.outputs.var }}
           token: ${{ secrets.DEV_USER_TOKEN }}
+
+      - name: Criar PR para atualizar a branch develop
+        run: |
+          git checkout -b master-to-sync-with-develop
+          git push origin -f master-to-sync-with-develop
+          gh pr create -B develop -H master-to-sync-with-develop \
+            --title "[sync] Atualizar branch develop pós release ${{ steps.versao.outputs.NOVA_VERSAO }}" \
+            --body 'Criada no github actions' || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
