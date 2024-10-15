@@ -9,7 +9,7 @@ RESULTADO="$5"
 
 # gratante que tem a evn NOME_DO_REPOSITORIO_COM_OWNER
 if [ -z "$NOME_DO_REPOSITORIO_COM_OWNER" ]; then
-  echo "env NOME_DO_REPOSITORIO não foi definido"
+  echo "env NOME_DO_REPOSITORIO_COM_OWNER não foi definido"
   exit 1
 fi
 
