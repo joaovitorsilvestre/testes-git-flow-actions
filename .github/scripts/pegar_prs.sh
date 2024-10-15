@@ -1,6 +1,3 @@
-# /bin/bash
-set -e
-
 PR_PARA_A_BRANCH="$1"
 TAG_INICIAL="$2"
 TAG_FINAL="$3"
@@ -21,6 +18,7 @@ echo "RESULTADO: $RESULTADO"
 echo "NOME_DO_REPOSITORIO_COM_OWNER: $NOME_DO_REPOSITORIO_COM_OWNER"
 
 MERGED="$(git log -1 --format=%cI $TAG_INICIAL)..$(git log -1 --format=%cI $TAG_FINAL)"
+echo "MERGED: $MERGED"
 
 gh search prs --base $PR_PARA_A_BRANCH \
 --merged-at "$MERGED" --repo $NOME_DO_REPOSITORIO_COM_OWNER \
