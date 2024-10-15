@@ -17,16 +17,16 @@ jobs:
     runs-on:
       - ubuntu-latest
 
+    if: github.event.pull_request.merged == true
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        if: github.event.pull_request.merged == true
         with:
           fetch-depth: 0
 
       - name: Bump version
         id: versao
-        if: github.event.pull_request.merged == true
         run: |          
           pr_title="${{ github.event.pull_request.title }}"
           pr_branch="${{ github.head_ref }}"
@@ -57,7 +57,6 @@ jobs:
           echo "TIPO_ATUALIZACAO=$TIPO_ATUALIZACAO" >> $GITHUB_OUTPUT
 
       - name: Criar PR para atualizar a branch develop
-        if: github.event.pull_request.merged == true
         run: |
           gh pr create -B develop -H master \
             --title "[release] Atualizar branch develop pós release ${{ steps.versao.outputs.NOVA_VERSAO }}" \
@@ -66,7 +65,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
 
       - name: Criar tag
-        if: github.event.pull_request.merged == true
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -80,7 +78,6 @@ jobs:
           config_file: changelog-ci-config.json
 
       - name: Create Release
-        if: github.event.pull_request.merged == true
         uses: ncipollo/release-action@v1.12.0
         with:
           allowUpdates: true

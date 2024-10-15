@@ -2,6 +2,11 @@ name: Validar novo PR
 
 on:
   pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
 
 jobs:
   validar-pr:
