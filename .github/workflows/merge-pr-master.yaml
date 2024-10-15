@@ -34,7 +34,6 @@ jobs:
         run: |          
           pr_title="${{ github.event.pull_request.title }}"
           pr_branch="${{ github.head_ref }}"
-          export NOME_DO_REPOSITORIO="${{ github.event.repository.name }}"
           
           echo "Titulo do PR: $pr_title"
           echo "Branch do PR: $pr_branch"
@@ -73,6 +72,7 @@ jobs:
         id: changelog-ci
         env:
           GH_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
+          NOME_DO_REPOSITORIO: ${{ github.event.repository.name }}
         run: |
           TAG_INICIAL=${{ steps.ultima_tag.outputs.tag }}
           TAG_FINAL=${{ steps.versao.outputs.NOVA_VERSAO }}
