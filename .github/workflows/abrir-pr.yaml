@@ -65,8 +65,17 @@ jobs:
           PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
           BRANCH_DESTINO_DO_PR=$(echo ${{ github.base_ref }} | sed 's/refs\/heads\///')
           
-          if [[ $PR_BRANCH =~ ^feat/.*$ || $PR_BRANCH =~ ^bugfix/.*$ || $PR_BRANCH =~ ^master$ ]]; then
+          if [[ $PR_BRANCH =~ ^feat/.*$ || $PR_BRANCH =~ ^bugfix/.*$ ]]; then
               echo "Nome da branch é válido"
+              
+              if [[ $BRANCH_DESTINO_DO_PR != "develop" ]]; then
+                  echo "FECHAR_PR='PR de branch feat/ ou bugfix/ só pode ser feito para a develop'" >> $GITHUB_OUTPUT
+              fi
+          elif [[ $PR_BRANCH =~ ^master$ ]]; then
+              echo "Nome da branch é válido"
+              if [[ $BRANCH_DESTINO_DO_PR != "develop" ]]; then
+                  echo "FECHAR_PR='PR de branch master só pode ser feito para a develop'" >> $GITHUB_OUTPUT
+              fi
           elif [[ $PR_BRANCH =~ ^hotfix/.*$ ]]; then
               if [[ $BRANCH_DESTINO_DO_PR == "master" ]]; then
                   echo "Nome da branch é válido"
