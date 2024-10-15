@@ -1,5 +1,5 @@
 {
-  "pull_request_title_regex": "^\[(fix|feat|major)\].*",
+  "pull_request_title_regex": "^\\[(fix|feat|major)\\].*",
   "group_config": [
     {
       "title": "Bug Fixes",
