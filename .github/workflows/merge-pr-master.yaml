@@ -72,7 +72,6 @@ jobs:
         id: changelog-ci
         env:
           GH_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
-          NOME_DO_REPOSITORIO_COM_OWNER: ${{ github.repository }}
         run: |
           TAG_INICIAL=${{ steps.ultima_tag.outputs.tag }}
           TAG_FINAL=${{ steps.versao.outputs.NOVA_VERSAO }}
