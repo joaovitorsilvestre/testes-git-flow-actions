@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch de origem'
+        description: 'Branch de origem (develop ou hotfix/xpto)'
         required: true
         default: 'develop'
         type: string
 
       tipo_de_bump:
-        description: 'Tipo de bump'
+        description: 'Tipo de bump da versão'
         type: choice
         required: true
         options:
