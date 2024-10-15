@@ -107,7 +107,7 @@ jobs:
               CHANGELOG+="\n\n"
           fi
           
-          echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "changelog=\"$CHANGELOG\"" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
