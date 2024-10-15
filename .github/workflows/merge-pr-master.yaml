@@ -82,7 +82,7 @@ jobs:
           .github/scripts/pegar_prs.sh develop $TAG_INICIAL $TAG_FINAL "\[fix\]" fixes_develop.txt
           .github/scripts/pegar_prs.sh master $TAG_INICIAL $TAG_FINAL "\[fix\]" hotfixes.txt
           
-          CHANGELOG="## CHANGELOG\n\n"
+          CHANGELOG="## Changelog\n\n"
           if [[ -s features_develop.txt ]]; then
             CHANGELOG+="### Features 🚀\n\n"
             CHANGELOG+=$(cat features_develop.txt)
