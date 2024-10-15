@@ -18,6 +18,7 @@ echo "TAG_INICIAL: $TAG_INICIAL"
 echo "TAG_FINAL: $TAG_FINAL"
 echo "REGEX: $REGEX"
 echo "RESULTADO: $RESULTADO"
+echo "NOME_DO_REPOSITORIO_COM_OWNER: $NOME_DO_REPOSITORIO_COM_OWNER"
 
 MERGED="$(git log -1 --format=%cI $TAG_INICIAL)..$(git log -1 --format=%cI $TAG_FINAL)"
 
