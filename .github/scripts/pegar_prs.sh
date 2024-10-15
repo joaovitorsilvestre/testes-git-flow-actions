@@ -13,16 +13,6 @@ echo "RESULTADO: $RESULTADO"
 SEARCH="merged:$(git log -1 --format=%cI $TAG_INICIAL)..$(git log -1 --format=%cI $TAG_FINAL)"
 echo "SEARCH: $SEARCH"
 
-echo "0"
-gh pr list --base $PR_PARA_A_BRANCH
-echo "1"
-gh pr list --base $PR_PARA_A_BRANCH \
---search "$SEARCH" --state merged
-echo "2"
-gh pr list --base $PR_PARA_A_BRANCH \
---search "$SEARCH" --state merged \
---json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"'
-echo "3"
 gh pr list --base $PR_PARA_A_BRANCH \
 --search "$SEARCH" --state merged \
 --json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"' | grep -E "$REGEX" > $RESULTADO
