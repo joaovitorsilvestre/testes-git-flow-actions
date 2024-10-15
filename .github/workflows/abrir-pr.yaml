@@ -77,8 +77,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
         run: |
-          PR_TITLE=$(echo ${{ github.event.pull_request.title }} | tr '[:upper:]' '[:lower:]')
-          
+          PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | tr '[:upper:]' '[:lower:]')
+
           if [[ $PR_TITLE =~ ^\[fix\].*$ ]]; then
               gh pr edit ${{ github.event.pull_request.number }} --add-label "fix"
           elif [[ $PR_TITLE =~ ^\[(feat|major)\].*$ ]]; then
