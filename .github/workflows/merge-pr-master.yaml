@@ -71,15 +71,56 @@ jobs:
           git tag -a ${{ steps.versao.outputs.NOVA_VERSAO }} -m "Release ${{ steps.versao.outputs.NOVA_VERSAO }}"
           git push origin ${{ steps.versao.outputs.NOVA_VERSAO }}
 
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Pegar a última tag
+        id: ultima_tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
 
-      - name: Run Changelog CI
-        uses: saadmk11/changelog-ci@v1.1.2
+      - name: Gera changelog
         id: changelog-ci
-        with:
-          config_file: changelog-ci-config.json
-          github_token: ${{ secrets.DEV_USER_TOKEN }}
+        run: |
+          TAG_INICIAL=${{ steps.ultima_tag.outputs.tag }}
+          TAG_FINAL=${{ steps.versao.outputs.NOVA_VERSAO }}
+          
+          SEARCH="merged:>=$(git log -1 --format=%cI $TAG_INICIAL) merged:<=$(git log -1 --format=%cI $TAG_FINAL)"
+          
+          gh pr list --base develop \ 
+            --search "$SEARCH" \
+            --state merged \
+            --json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"' | grep -E "\[feat|major\]" \
+            > features_develop.txt
+          
+          gh pr list --base develop \ 
+            --search "$SEARCH" \
+            --state merged \
+            --json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"' | grep -E "\[fix\]" \
+            > fixes_develop.txt
+          
+          gh pr list --base master \ 
+            --search "$SEARCH" \
+            --state merged \
+            --json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"' | grep -E "\[fix\]" \
+            > hotfixes.txt
+          
+          CHANGELOG="## CHANGELOG\n\n"
+          if [[ -s features_develop.txt ]]; then
+            CHANGELOG+="### Features 🚀\n\n"
+            CHANGELOG+=$(cat features_develop.txt)
+            CHANGELOG+="\n\n"
+          fi
+          
+          if [[ -s fixes_develop.txt ]]; then
+              CHANGELOG+="### Fixes 🐛\n\n"
+              CHANGELOG+=$(cat fixes_develop.txt)
+              CHANGELOG+="\n\n"
+          fi
+        
+          if [[ -s hotfixes.txt ]]; then
+              CHANGELOG+="### Hotfixes 🧯\n\n"
+              CHANGELOG+=$(cat hotfixes.txt)
+              CHANGELOG+="\n\n"
+          fi
+          
+          echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
@@ -91,4 +132,3 @@ jobs:
           tag: ${{ steps.versao.outputs.NOVA_VERSAO }}
           body: ${{ steps.changelog-ci.outputs.changelog }}
           token: ${{ secrets.DEV_USER_TOKEN }}
-          reverseOrder: true
