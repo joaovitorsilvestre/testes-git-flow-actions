@@ -4,20 +4,20 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch de origem'
+        description: 'Branch de origem (develop ou hotfix/xpto)'
         required: true
         default: 'develop'
         type: string
 
       tipo_de_bump:
-        description: 'Tipo de bump'
+        description: 'Tipo de bump da versão'
         type: choice
         required: true
         options:
-          - 'major'
-          - 'feature'
-          - 'fix'
           - 'build'
+          - 'fix'
+          - 'feature'
+          - 'major'
 
 permissions:
   contents: write
@@ -27,6 +27,7 @@ jobs:
     runs-on:
     - ubuntu-latest
 
+    if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout
         uses: actions/checkout@v3

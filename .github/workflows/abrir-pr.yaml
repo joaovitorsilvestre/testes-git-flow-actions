@@ -2,6 +2,11 @@ name: Validar novo PR
 
 on:
   pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
 
 jobs:
   validar-pr:
@@ -55,8 +60,17 @@ jobs:
           PR_BRANCH=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')
           BRANCH_DESTINO_DO_PR=$(echo ${{ github.base_ref }} | sed 's/refs\/heads\///')
           
-          if [[ $PR_BRANCH =~ ^feat/.*$ || $PR_BRANCH =~ ^bugfix/.*$ || $PR_BRANCH =~ ^master$ ]]; then
+          if [[ $PR_BRANCH =~ ^feat/.*$ || $PR_BRANCH =~ ^bugfix/.*$ ]]; then
               echo "Nome da branch é válido"
+              
+              if [[ $BRANCH_DESTINO_DO_PR != "develop" ]]; then
+                  echo "FECHAR_PR='PR de branch feat/ ou bugfix/ só pode ser feito para a develop'" >> $GITHUB_OUTPUT
+              fi
+          elif [[ $PR_BRANCH =~ ^master$ ]]; then
+              echo "Nome da branch é válido"
+              if [[ $BRANCH_DESTINO_DO_PR != "develop" ]]; then
+                  echo "FECHAR_PR='PR de branch master só pode ser feito para a develop'" >> $GITHUB_OUTPUT
+              fi
           elif [[ $PR_BRANCH =~ ^hotfix/.*$ ]]; then
               if [[ $BRANCH_DESTINO_DO_PR == "master" ]]; then
                   echo "Nome da branch é válido"
@@ -74,9 +88,16 @@ jobs:
           fi
 
       - name: Adiciona label no PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
         run: |
-          PR_TITLE=$(echo ${{ github.event.pull_request.title }} | tr '[:upper:]' '[:lower:]')
+          PR_TITLE="${{ github.event.pull_request.title }}"
           
+          # cria labels se não existir
+          gh label create "fix" || true
+          gh label create "feature" || true
+          gh label create "release" || true
+
           if [[ $PR_TITLE =~ ^\[fix\].*$ ]]; then
               gh pr edit ${{ github.event.pull_request.number }} --add-label "fix"
           elif [[ $PR_TITLE =~ ^\[(feat|major)\].*$ ]]; then

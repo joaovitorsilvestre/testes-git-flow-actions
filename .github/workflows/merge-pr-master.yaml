@@ -17,16 +17,20 @@ jobs:
     runs-on:
       - ubuntu-latest
 
+    if: github.event.pull_request.merged == true
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        if: github.event.pull_request.merged == true
         with:
           fetch-depth: 0
 
+      - name: Pegar a última tag
+        id: ultima_tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+
       - name: Bump version
         id: versao
-        if: github.event.pull_request.merged == true
         run: |          
           pr_title="${{ github.event.pull_request.title }}"
           pr_branch="${{ github.head_ref }}"
@@ -57,7 +61,6 @@ jobs:
           echo "TIPO_ATUALIZACAO=$TIPO_ATUALIZACAO" >> $GITHUB_OUTPUT
 
       - name: Criar PR para atualizar a branch develop
-        if: github.event.pull_request.merged == true
         run: |
           gh pr create -B develop -H master \
             --title "[release] Atualizar branch develop pós release ${{ steps.versao.outputs.NOVA_VERSAO }}" \
@@ -66,21 +69,53 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
 
       - name: Criar tag
-        if: github.event.pull_request.merged == true
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git tag -a ${{ steps.versao.outputs.NOVA_VERSAO }} -m "Release ${{ steps.versao.outputs.NOVA_VERSAO }}"
           git push origin ${{ steps.versao.outputs.NOVA_VERSAO }}
 
-      - name: Run Changelog CI
-        uses: saadmk11/changelog-ci@v1.1.2
+      - name: Gera changelog
         id: changelog-ci
-        with:
-          config_file: changelog-ci-config.json
+        env:
+          GH_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
+        run: |
+          TAG_INICIAL=${{ steps.ultima_tag.outputs.tag }}
+          TAG_FINAL=${{ steps.versao.outputs.NOVA_VERSAO }}
+          
+          chmod +x .github/scripts/pegar_prs.sh
+          .github/scripts/pegar_prs.sh develop $TAG_INICIAL $TAG_FINAL "\[feat|major\]" features_develop.txt
+          .github/scripts/pegar_prs.sh develop $TAG_INICIAL $TAG_FINAL "\[fix\]" fixes_develop.txt
+          .github/scripts/pegar_prs.sh master $TAG_INICIAL $TAG_FINAL "\[fix\]" hotfixes.txt
+          
+          CHANGELOG="## CHANGELOG\n\n"
+          if [[ -s features_develop.txt ]]; then
+            CHANGELOG+="### Features 🚀\n\n"
+            CHANGELOG+=$(cat features_develop.txt)
+            CHANGELOG+="\n\n"
+          fi
+          
+          if [[ -s fixes_develop.txt ]]; then
+              CHANGELOG+="### Fixes 🐛\n\n"
+              CHANGELOG+=$(cat fixes_develop.txt)
+              CHANGELOG+="\n\n"
+          fi
+        
+          if [[ -s hotfixes.txt ]]; then
+              CHANGELOG+="### Hotfixes 🧯\n\n"
+              CHANGELOG+=$(cat hotfixes.txt)
+              CHANGELOG+="\n\n"
+          fi
+          
+          echo "******"
+          echo "$CHANGELOG"
+          echo "******"
+          
+          echo 'var<<EOF' >> $GITHUB_OUTPUT
+          printf "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
 
       - name: Create Release
-        if: github.event.pull_request.merged == true
         uses: ncipollo/release-action@v1.12.0
         with:
           allowUpdates: true
@@ -88,6 +123,5 @@ jobs:
           makeLatest: true
           name: ${{ steps.versao.outputs.NOVA_VERSAO }}
           tag: ${{ steps.versao.outputs.NOVA_VERSAO }}
-          body: ${{ steps.changelog-ci.outputs.changelog }}
+          body: ${{ steps.changelog-ci.outputs.var }}
           token: ${{ secrets.DEV_USER_TOKEN }}
-          reverseOrder: true
