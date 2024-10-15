@@ -10,20 +10,17 @@ echo "TAG_FINAL: $TAG_FINAL"
 echo "REGEX: $REGEX"
 echo "RESULTADO: $RESULTADO"
 
-SEARCH="merged:$(git log -1 --format=%cI $TAG_INICIAL)..$(git log -1 --format=%cI $TAG_FINAL)"
+# Temos que adicionar 10 segundos a mais, senão iremos pegar as mudanças da última tag também
+HORARIO_TAG_INICIAL=$(TZ=UTC0 date -d @$(git log -1 --format="%at" $TAG_INICIAL) +%Y-%m-%dT%H:%M:%S%:z)
+HORARIO_TAG_INICIAL=$(TZ=UTC0 date -d "$(date -d "$HORARIO_TAG_INICIAL" +%Y-%m-%dT%H:%M:%S%z) + 10 seconds" +%Y-%m-%dT%H:%M:%S%:z)
+
+SEARCH="merged:$HORARIO_TAG_INICIAL..$(TZ=UTC0 date -d @$(git log -1 --format="%at" $TAG_FINAL) +%Y-%m-%dT%H:%M:%S%:z)"
 echo "SEARCH: $SEARCH"
 
-echo "0"
-gh pr list --base $PR_PARA_A_BRANCH
-echo "1"
-gh pr list --base $PR_PARA_A_BRANCH \
---search "$SEARCH" --state merged
-echo "2"
-gh pr list --base $PR_PARA_A_BRANCH \
---search "$SEARCH" --state merged \
---json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"'
-echo "3"
 gh pr list --base $PR_PARA_A_BRANCH \
 --search "$SEARCH" --state merged \
 --json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"' | grep -E "$REGEX" > $RESULTADO
 echo "finalizado"
+echo "resultado:"
+cat $RESULTADO
+echo "*************"
