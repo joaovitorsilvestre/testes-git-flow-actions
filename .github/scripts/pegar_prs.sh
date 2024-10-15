@@ -7,6 +7,12 @@ TAG_FINAL="$3"
 REGEX="$4"
 RESULTADO="$5"
 
+# gratante que tem a evn NOME_DO_REPOSITORIO
+if [ -z "$NOME_DO_REPOSITORIO" ]; then
+  echo "env NOME_DO_REPOSITORIO não foi definido"
+  exit 1
+fi
+
 echo "PR_PARA_A_BRANCH: $PR_PARA_A_BRANCH"
 echo "TAG_INICIAL: $TAG_INICIAL"
 echo "TAG_FINAL: $TAG_FINAL"
