@@ -76,6 +76,7 @@ jobs:
         id: changelog-ci
         with:
           config_file: changelog-ci-config.json
+          github_token: ${{ secrets.DEV_USER_TOKEN }}
 
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
