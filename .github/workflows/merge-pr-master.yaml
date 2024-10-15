@@ -31,6 +31,8 @@ jobs:
 
       - name: Bump version
         id: versao
+        env:
+          NOME_DO_REPOSITORIO: ${{ github.event.repository.name }}
         run: |          
           pr_title="${{ github.event.pull_request.title }}"
           pr_branch="${{ github.head_ref }}"
