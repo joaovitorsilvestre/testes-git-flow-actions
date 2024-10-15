@@ -12,7 +12,7 @@ echo "RESULTADO: $RESULTADO"
 
 # Temos que adicionar 10 segundos a mais, senão iremos pegar as mudanças da última tag também
 HORARIO_TAG_INICIAL=$(git log -1 --format=%cI $TAG_INICIAL)
-HORARIO_TAG_INICIAL=$(date +"%Y-%m-%dT%H:%M:%S%z" --date=@$(($(date +%s --date="$HORARIO_TAG_INICIAL") + 10)))
+HORARIO_TAG_INICIAL=$(date -d "$(date -d "$HORARIO_TAG_INICIAL" +%Y-%m-%dT%H:%M:%S%z) + 10 seconds" +%Y-%m-%dT%H:%M:%S%:z)
 
 SEARCH="merged:$HORARIO_TAG_INICIAL..$(git log -1 --format=%cI $TAG_FINAL)"
 echo "SEARCH: $SEARCH"
