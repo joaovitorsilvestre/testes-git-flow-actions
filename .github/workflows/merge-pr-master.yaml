@@ -64,7 +64,7 @@ jobs:
       - name: Criar PR para atualizar a branch develop
         run: |
           gh pr create -B develop -H master \
-            --title "[release] Atualizar branch develop pós release ${{ steps.versao.outputs.NOVA_VERSAO }}" \
+            --title "[sync] Atualizar branch develop pós release ${{ steps.versao.outputs.NOVA_VERSAO }}" \
             --body 'Criada no github actions' || true
         env:
           GITHUB_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
