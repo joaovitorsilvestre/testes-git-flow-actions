@@ -77,6 +77,8 @@ jobs:
 
       - name: Gera changelog
         id: changelog-ci
+        env:
+          GH_TOKEN: ${{ secrets.DEV_USER_TOKEN }}
         run: |
           TAG_INICIAL=${{ steps.ultima_tag.outputs.tag }}
           TAG_FINAL=${{ steps.versao.outputs.NOVA_VERSAO }}
