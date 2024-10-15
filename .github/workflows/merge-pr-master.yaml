@@ -81,25 +81,10 @@ jobs:
           TAG_INICIAL=${{ steps.ultima_tag.outputs.tag }}
           TAG_FINAL=${{ steps.versao.outputs.NOVA_VERSAO }}
           
-          SEARCH="merged:>=$(git log -1 --format=%cI $TAG_INICIAL) merged:<=$(git log -1 --format=%cI $TAG_FINAL)"
-          
-          gh pr list --base develop \ 
-            --search "$SEARCH" \
-            --state merged \
-            --json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"' | grep -E "\[feat|major\]" \
-            > features_develop.txt
-          
-          gh pr list --base develop \ 
-            --search "$SEARCH" \
-            --state merged \
-            --json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"' | grep -E "\[fix\]" \
-            > fixes_develop.txt
-          
-          gh pr list --base master \ 
-            --search "$SEARCH" \
-            --state merged \
-            --json title,author,url --jq '.[] | "* [\(.title)](\(.url)) - autor: @\(.author.login)"' | grep -E "\[fix\]" \
-            > hotfixes.txt
+          chmod +x .github/scripts/pegar_prs.sh
+          .github/scripts/pegar_prs.sh develop $TAG_INICIAL $TAG_FINAL "\[feat|major\]" features_develop.txt
+          .github/scripts/pegar_prs.sh develop $TAG_INICIAL $TAG_FINAL "\[fix\]" fixes_develop.txt
+          .github/scripts/pegar_prs.sh master $TAG_INICIAL $TAG_FINAL "\[fix\]" hotfixes.txt
           
           CHANGELOG="## CHANGELOG\n\n"
           if [[ -s features_develop.txt ]]; then
